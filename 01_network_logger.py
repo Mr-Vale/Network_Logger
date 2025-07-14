@@ -6,7 +6,7 @@ import time
 import socket
 import uuid
 from datetime import datetime
-from 02_Upload_file import upload_file_to_drive  # Import the uploader
+from Upload_file import upload_file_to_drive  # Import the uploader
 
 # CONFIGURATION
 BASE_DIR = os.path.expanduser("~/Network_Logger")

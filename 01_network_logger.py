@@ -13,7 +13,7 @@ BASE_DIR = os.path.expanduser("~/Network_Logger")
 HISTORY_DIR = os.path.join(BASE_DIR, "network_history")
 UPLOAD_TO_DRIVE = False  # Set to True once Google Drive integration is ready
 GOOGLE_CREDENTIALS = None  # Placeholder for future credentials
-DELAY_AT_STARTUP_SEC = 120  # Delay to allow network connection to stabilize
+DELAY_AT_STARTUP_SEC = 20  # Delay to allow network connection to stabilize
 
 # Ensure folders exist
 os.makedirs(HISTORY_DIR, exist_ok=True)
@@ -67,7 +67,7 @@ def main():
     time.sleep(DELAY_AT_STARTUP_SEC)
     while True:
         save_log()
-        time.sleep(3600)  # Run hourly
+        time.sleep(10)  # Run hourly
 
 if __name__ == "__main__":
     main()

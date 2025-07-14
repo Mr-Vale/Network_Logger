@@ -5,21 +5,6 @@
 
 This is useful for managing multiple Raspberry Pi units across a network or property, especially when each device has a unique role or physical location.
 
----
-
-## 📁 Directory Structure
-
-```
-~/Network_Logger/
-├── 01_network_logger.py       # Main hourly logging script
-├── 02_Upload_file.py          # (Optional) Google Drive uploader scaffold
-├── Network_Logger_Install.sh  # Setup and installation script
-├── device_metadata.json       # Stores hostname and description
-└── network_history/           # Folder for JSON logs
-```
-
----
-
 ## ⚙️ Features
 
 - Logs:
@@ -33,14 +18,17 @@ This is useful for managing multiple Raspberry Pi units across a network or prop
 - Placeholder uploader module for future Google Drive support
 - Works as a dependency in other Raspberry Pi install scripts
 
----
+
+
+
+
 
 ## 🚀 Installation
 
 Run the install script on your Raspberry Pi:
 
 ```bash
-bash Network_Logger_Install.sh
+bash <(curl -s https://raw.githubusercontent.com/Mr-Vale/Network_Logger/main/Network_Logger_Install.sh)
 ```
 
 The script will:
@@ -52,8 +40,6 @@ The script will:
 5. Save metadata and create a `systemd` service
 6. Enable and start the logger at boot (after a 2-minute delay)
 
----
-
 ## 🕒 Logging Behavior
 
 Once installed, `01_network_logger.py` will run at boot (after ~120 seconds) and log network data every hour to:
@@ -61,8 +47,6 @@ Once installed, `01_network_logger.py` will run at boot (after ~120 seconds) and
 ```
 ~/Network_Logger/network_history/<hostname>_Network_ID.json
 ```
-
----
 
 ## ☁️ Google Drive Upload (Future Support)
 
@@ -73,8 +57,6 @@ To simulate uploads, you can set this flag in `01_network_logger.py`:
 ```python
 UPLOAD_TO_DRIVE = True
 ```
-
----
 
 ## 📌 Use as a Dependency
 
@@ -91,6 +73,18 @@ git clone https://github.com/Mr-Vale/Network_Logger ~/Network_Logger
 bash ~/Network_Logger/Network_Logger_Install.sh
 ```
 
+---
+
+## 📁 Directory Structure
+
+```
+~/Network_Logger/
+├── 01_network_logger.py       # Main hourly logging script
+├── Upload_File.py          # (Optional) Google Drive uploader scaffold
+├── Network_Logger_Install.sh  # Setup and installation script
+├── device_metadata.json       # Stores hostname and description
+└── network_history/           # Folder for JSON logs
+```
 ---
 
 ## 📄 License

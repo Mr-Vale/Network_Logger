@@ -6,7 +6,7 @@ import time
 import socket
 import uuid
 from datetime import datetime
-from upload_file import upload_file_to_drive  # Import your uploader scaffold
+from Upload_File import upload_file_to_drive  # Import your uploader scaffold
 
 # CONFIGURATION
 BASE_DIR = os.path.expanduser("~/Network_Logger")
@@ -45,12 +45,23 @@ def load_metadata():
             return json.load(f)
     return {"hostname": socket.gethostname(), "description": "N/A"}
 
+def get_interface():
+    """Returns the name of the active network interface (wlan0, eth0, etc.)"""
+    try:
+        import netifaces
+        gateways = netifaces.gateways()
+        default_iface = gateways['default'][netifaces.AF_INET][1]
+        return default_iface
+    except Exception:
+        return "Unknown"
+
 def save_log():
     metadata = load_metadata()
     log_entry = {
         "timestamp": datetime.now().isoformat(),
         "mac": get_mac(),
         "ip": get_ip(),
+        "interface": get_interface(),  # ← add this line
         "hostname": metadata["hostname"],
         "description": metadata["description"]
     }
@@ -60,7 +71,7 @@ def save_log():
     try:
         # Overwrite with single latest entry
         with open(filename, "w") as f:
-            json.dump([log_entry], f, indent=4)
+            json.dump(log_entry, f, indent=4)
 
         print(f"[{datetime.now().isoformat()}] Log saved to: {filename}")
 
@@ -77,7 +88,7 @@ def main():
 
     while True:
         save_log()
-        time.sleep(3600)  # Log every hour
+        time.sleep(1800)  # Log every 1/2 hour
 
 if __name__ == "__main__":
     main()

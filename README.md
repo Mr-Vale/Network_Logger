@@ -18,11 +18,6 @@ This is useful for managing multiple Raspberry Pi units across a network or prop
 - Placeholder uploader module for future Google Drive support
 - Works as a dependency in other Raspberry Pi install scripts
 
-
-
-
-
-
 ## 🚀 Installation
 
 Run the install script on your Raspberry Pi:

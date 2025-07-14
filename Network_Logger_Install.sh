@@ -7,21 +7,21 @@ HISTORY_DIR="$BASE_DIR/network_history"
 REPO_URL="https://github.com/Mr-Vale/Network_Logger"
 SERVICE_NAME="network_logger.service"
 
-echo "📁 Creating required directories..."
+echo "  📁 Creating required directories..."
 mkdir -p "$HISTORY_DIR"
 
-echo "🐙 Cloning repo..."
+echo "  🐙 Cloning repo..."
 if [ ! -d "$BASE_DIR/.git" ]; then
     git clone "$REPO_URL" "$BASE_DIR"
 else
     echo "Repo already cloned, skipping."
 fi
 
-echo "🖥️ Setting hostname..."
+echo "  🖥️ Setting hostname..."
 read -p "Enter desired hostname for this Raspberry Pi: " NEW_HOSTNAME
 sudo hostnamectl set-hostname "$NEW_HOSTNAME"
 
-echo "📝 Enter a description for this device:"
+echo "  📝 Enter a description for this device:"
 read -p "> " DESCRIPTION
 
 # Save metadata to JSON file
@@ -32,7 +32,7 @@ cat > "$BASE_DIR/device_metadata.json" <<EOF
 }
 EOF
 
-echo "🛠️ Creating systemd service..."
+echo "  🛠️ Creating systemd service..."
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 sudo bash -c "cat > $SERVICE_PATH" <<EOF
 [Unit]
@@ -50,10 +50,10 @@ WorkingDirectory=$BASE_DIR
 WantedBy=multi-user.target
 EOF
 
-echo "🔄 Reloading and enabling service..."
+echo "  🔄 Reloading and enabling service..."
 sudo systemctl daemon-reexec
 sudo systemctl daemon-reload
 sudo systemctl enable "$SERVICE_NAME"
 sudo systemctl start "$SERVICE_NAME"
 
-echo "✅ Network Logger installed and running as $SERVICE_NAME"
+echo "  ✅ Network Logger installed and running as $SERVICE_NAME"

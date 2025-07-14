@@ -49,8 +49,13 @@ echo ""
 echo "🖥️ Setting hostname..."
 sudo hostnamectl set-hostname "$NEW_HOSTNAME"
 
-# Update /etc/hosts so sudo can resolve the new hostname
-sudo sed -i "s/127.0.1.1.*/127.0.1.1    $NEW_HOSTNAME/" /etc/hosts
+# Check if 127.0.1.1 line exists, update it; else add it
+if grep -q "^127\.0\.1\.1" /etc/hosts; then
+    sudo sed -i "s/^127\.0\.1\.1.*/127.0.1.1    $NEW_HOSTNAME/" /etc/hosts
+else
+    echo "127.0.1.1    $NEW_HOSTNAME" | sudo tee -a /etc/hosts
+fi
+
 
 
 # Prompt for description

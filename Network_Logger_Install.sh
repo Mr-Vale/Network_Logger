@@ -39,8 +39,10 @@ is_valid_hostname() {
 }
 
 # Prompt for hostname until valid
+echo "=================================================================== "
+echo ""
 while true; do
-    read -p "Enter desired hostname for this Raspberry Pi: " NEW_HOSTNAME
+    read -p "Please Enter desired hostname for this Raspberry Pi: " NEW_HOSTNAME
     if is_valid_hostname "$NEW_HOSTNAME"; then
         echo ""
         echo "✅ Hostname valid: $NEW_HOSTNAME"
@@ -55,14 +57,17 @@ echo ""
 echo "🖥️ Setting hostname..."
 sudo hostnamectl set-hostname "$NEW_HOSTNAME"
 
-# Update /etc/hosts so sudo can resolve the new hostname
+# ✅ Immediately update /etc/hosts to prevent sudo resolution error
+echo ""
+echo "🧹 Ensuring /etc/hosts maps hostname correctly..."
 if grep -q "^127\.0\.1\.1" /etc/hosts; then
     sudo sed -i "s/^127\.0\.1\.1.*/127.0.1.1    $NEW_HOSTNAME/" /etc/hosts
 else
-    echo "127.0.1.1    $NEW_HOSTNAME" | sudo tee -a /etc/hosts
+    echo "127.0.1.1    $NEW_HOSTNAME" | sudo tee -a /etc/hosts > /dev/null
 fi
 
 # Prompt for description
+echo "=================================================================== "
 echo ""
 echo "📝 Enter a description for this device:"
 read -p "> " DESCRIPTION

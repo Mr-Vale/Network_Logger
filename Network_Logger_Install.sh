@@ -48,8 +48,8 @@ while true; do
         echo "✅ Hostname valid: $NEW_HOSTNAME"
         break
     else
-        echo ""
         echo "❌ Invalid hostname. Use only letters, numbers, and dashes. No spaces. Max 63 characters. Cannot start or end with a dash."
+        echo ""
     fi
 done
 

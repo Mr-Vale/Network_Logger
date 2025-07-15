@@ -56,6 +56,10 @@ done
 echo ""
 echo "🖥️ Setting hostname..."
 sudo hostnamectl set-hostname "$NEW_HOSTNAME"
+sleep 2
+
+echo ""
+echo "⚠️  You may briefly see a 'sudo: unable to resolve host' warning — this is normal and will go away after install."
 
 # ✅ Immediately update /etc/hosts to prevent sudo resolution error
 echo ""

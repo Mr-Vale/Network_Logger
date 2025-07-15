@@ -58,12 +58,10 @@ echo "🖥️ Setting hostname..."
 sudo hostnamectl set-hostname "$NEW_HOSTNAME"
 sleep 2
 
-echo ""
-echo "⚠️  You may briefly see a 'sudo: unable to resolve host' warning — this is normal and will go away after install."
-
 # ✅ Immediately update /etc/hosts to prevent sudo resolution error
 echo ""
 echo "🧹 Ensuring /etc/hosts maps hostname correctly..."
+echo "⚠️  You may briefly see a 'sudo: unable to resolve host' warning — this is normal and will go away after install."
 if grep -q "^127\.0\.1\.1" /etc/hosts; then
     sudo sed -i "s/^127\.0\.1\.1.*/127.0.1.1    $NEW_HOSTNAME/" /etc/hosts
 else

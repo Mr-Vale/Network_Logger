@@ -23,8 +23,23 @@ fi
 # ✅ Install Python dependency for interface detection
 echo ""
 echo "📦 Installing system Python dependencies..."
+
 sudo apt update
-sudo apt install -y python3-netifaces
+sudo apt install -y \
+    python3-pip \
+    python3-netifaces \
+    python3-google-auth \
+    python3-google-api-client \
+    python3-google-auth-httplib2 \
+    python3-google-auth-oauthlib
+
+# Install via pip in case the apt packages don't cover everything
+echo ""
+echo "📦 Installing Google Drive libraries via pip as fallback..."
+sudo pip3 install --upgrade \
+    google-api-python-client \
+    google-auth-httplib2 \
+    google-auth-oauthlib
 
 # Function to validate hostname
 is_valid_hostname() {
@@ -48,20 +63,18 @@ while true; do
         echo "✅ Hostname valid: $NEW_HOSTNAME"
         break
     else
-        echo "❌ Invalid hostname. Use only letters, numbers, and dashes. No spaces. Max 63 characters. Cannot start or end with a dash."
         echo ""
+        echo "❌ Invalid hostname. Use only letters, numbers, and dashes. No spaces. Max 63 characters. Cannot start or end with a dash."
     fi
 done
 
 echo ""
 echo "🖥️ Setting hostname..."
 sudo hostnamectl set-hostname "$NEW_HOSTNAME"
-sleep 2
 
 # ✅ Immediately update /etc/hosts to prevent sudo resolution error
 echo ""
 echo "🧹 Ensuring /etc/hosts maps hostname correctly..."
-echo "⚠️  You may briefly see a 'sudo: unable to resolve host' warning — this is normal and will go away after install."
 if grep -q "^127\.0\.1\.1" /etc/hosts; then
     sudo sed -i "s/^127\.0\.1\.1.*/127.0.1.1    $NEW_HOSTNAME/" /etc/hosts
 else

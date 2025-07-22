@@ -3,7 +3,7 @@
 
 **Network_Logger** is a lightweight Raspberry Pi-based network identification logger. It records key details about the device (MAC address, IP address, hostname, and a user-provided description) every hour and optionally uploads this information to Google Drive.
 
-This is useful for managing multiple Raspberry Pi units across a network or property, especially when each device has a unique role or physical location.
+This is useful for managing multiple Raspberry Pi units across a large network or property, especially when each device has a unique role or physical location.
 
 ## ⚙️ Features
 
@@ -15,7 +15,7 @@ This is useful for managing multiple Raspberry Pi units across a network or prop
   - Timestamp
 - Stores logs in a device-specific JSON file
 - Designed to run automatically at boot via `systemd`
-- Placeholder uploader module for future Google Drive support
+- Uploads to Google Drive
 - Works as a dependency in other Raspberry Pi install scripts
 
 ## 🚀 Installation
@@ -43,11 +43,18 @@ Once installed, `01_network_logger.py` will run at boot (after ~120 seconds) and
 ~/Network_Logger/network_history/<hostname>_Network_ID.json
 ```
 
-## ☁️ Google Drive Upload (Future Support)
+## ☁️ Google Drive Upload 
 
-The script currently includes a placeholder upload module (`Upload_File.py`). Google Drive integration will be available in a future release using OAuth2 or service accounts.
+The upload module (Upload_File.py) supports authentication via a pre-generated token.pickle and credentials.json placed in ~/Network_Logger.
+### No interactive login flow is implemented; tokens must be generated on another machine and copied over.
+The uploader:
 
-To simulate uploads, you can set this flag in `01_network_logger.py`:
+   Checks for a folder named Raspberry_PI_Network_Identification on Google Drive and creates it if missing.
+
+   Uploads the log file, deleting any existing file with the same name to keep the folder clean.
+
+
+To enable upload, set this flag in 01_network_logger.py:
 
 ```python
 UPLOAD_TO_DRIVE = True

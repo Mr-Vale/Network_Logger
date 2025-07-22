@@ -45,7 +45,7 @@ Once installed, `01_network_logger.py` will run at boot (after ~120 seconds) and
 
 ## ☁️ Google Drive Upload (Future Support)
 
-The script currently includes a placeholder upload module (`02_Upload_file.py`). Google Drive integration will be available in a future release using OAuth2 or service accounts.
+The script currently includes a placeholder upload module (`Upload_File.py`). Google Drive integration will be available in a future release using OAuth2 or service accounts.
 
 To simulate uploads, you can set this flag in `01_network_logger.py`:
 

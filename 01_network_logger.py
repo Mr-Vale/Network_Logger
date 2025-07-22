@@ -53,7 +53,7 @@ def get_interface():
 def save_log():
     metadata = load_metadata()
     log_entry = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": int(time.time()),  # Unix timestamp, integer seconds since 1970-01-01 UTC
         "mac": get_mac(),
         "ip": get_ip(),
         "interface": get_interface(),

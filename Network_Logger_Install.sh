@@ -78,6 +78,11 @@ echo ""
 echo "🖥️ Setting hostname..."
 sudo hostnamectl set-hostname "$NEW_HOSTNAME"
 
+echo "You may see an error 'unable to resolve host' this is normal"
+echo ""
+echo "..."
+sleep 5
+
 echo ""
 echo "🧹 Ensuring /etc/hosts maps hostname correctly..."
 if grep -q "^127\.0\.1\.1" /etc/hosts; then
@@ -126,3 +131,11 @@ sudo systemctl start "$SERVICE_NAME"
 
 echo ""
 echo "✅ Network Logger installed and running as $SERVICE_NAME"
+echo "" 
+echo "=================================================================== "
+echo ""
+echo "Remeber to copy accross the upload credentials to $BASE_DIR"
+echo ""
+read -n 1 -s -r -p "Press any key to continue..."
+echo
+ 

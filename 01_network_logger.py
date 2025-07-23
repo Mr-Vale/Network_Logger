@@ -61,15 +61,17 @@ def save_log():
         "description": metadata["description"]
     }
 
-    filename = os.path.join(HISTORY_DIR, f"{metadata['hostname']}_Network_ID.json")
+    file_path = os.path.join(HISTORY_DIR, f"{metadata['hostname']}_Network_ID.json")
 
     try:
-        with open(filename, "w") as f:
+        with open(file_path, "w") as f:
             json.dump(log_entry, f, indent=4)
-        print(f"[{datetime.now().isoformat()}] Log saved to: {filename}")
+
+        # For logging to console, you can keep ISO format for readability
+        print(f"[{datetime.now().isoformat()}] Log saved to: {file_path}")
 
         if UPLOAD_TO_DRIVE:
-            upload_file_to_drive(filename, TOKEN_PATH)
+            upload_file_to_drive(file_path, TOKEN_PATH)
 
     except Exception as e:
         print(f"❌ Error during logging or upload: {e}")

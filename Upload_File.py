@@ -50,7 +50,7 @@ def get_or_create_folder(service, folder_name):
         folder = service.files().create(body=file_metadata, fields='id').execute()
         return folder.get('id')
 
-def upload_file_to_drive(file_path):
+def upload_file_to_drive(file_path, TOKEN_PATH):
     try:
         service = authenticate_google_drive()
         folder_id = get_or_create_folder(service, FOLDER_NAME)

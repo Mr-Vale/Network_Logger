@@ -9,16 +9,17 @@ REPO_URL="https://github.com/Mr-Vale/Network_Logger"
 SERVICE_NAME="network_logger.service"
 
 echo ""
-echo "📁 Creating required directories..."
-mkdir -p "$HISTORY_DIR"
-
-echo ""
 echo "🐙 Cloning repo..."
 if [ ! -d "$BASE_DIR/.git" ]; then
     git clone "$REPO_URL" "$BASE_DIR"
 else
     echo "Repo already cloned, skipping."
 fi
+
+echo ""
+echo "📁 Creating required directories..."
+mkdir -p "$HISTORY_DIR"
+
 
 # ✅ Install Python dependency for interface detection
 echo ""

@@ -30,7 +30,7 @@ sudo apt install -y \
     python3-pip \
     python3-netifaces \
     python3-google-auth \
-    python3-google-api-client \
+#    python3-google-api-client \
     python3-google-auth-httplib2 \
     python3-google-auth-oauthlib
 

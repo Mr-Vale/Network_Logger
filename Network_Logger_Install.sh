@@ -31,8 +31,8 @@ sudo apt install -y \
     python3-netifaces \
     python3-google-auth \
 #    python3-google-api-client \
-    python3-google-auth-httplib2 \
-    python3-google-auth-oauthlib
+#    python3-google-auth-httplib2 \
+#    python3-google-auth-oauthlib
 
 # Install via pip in case the apt packages don't cover everything
 echo ""

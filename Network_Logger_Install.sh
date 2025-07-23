@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Exit immediately on error
+# Exit on error
 set -e
 
 BASE_DIR="$HOME/Network_Logger"
 HISTORY_DIR="$BASE_DIR/network_history"
 REPO_URL="https://github.com/Mr-Vale/Network_Logger"
 SERVICE_NAME="network_logger.service"
+VENV_DIR="$BASE_DIR/venv"
 
 echo ""
 echo "🐙 Cloning repo..."
@@ -20,27 +21,32 @@ echo ""
 echo "📁 Creating required directories..."
 mkdir -p "$HISTORY_DIR"
 
-
-# ✅ Install Python dependency for interface detection
+# ✅ Install required system packages
 echo ""
-echo "📦 Installing system Python dependencies..."
-
+echo "📦 Installing system Python and venv dependencies..."
 sudo apt update
 sudo apt install -y \
+    python3 \
     python3-pip \
-    python3-netifaces \
-    python3-google-auth \
-#    python3-google-api-client \
-#    python3-google-auth-httplib2 \
-#    python3-google-auth-oauthlib
+    python3-venv \
+    python3-netifaces
 
-# Install via pip in case the apt packages don't cover everything
+# ✅ Create virtual environment
 echo ""
-echo "📦 Installing Google Drive libraries via pip as fallback..."
-sudo pip3 install --upgrade \
+echo "🐍 Creating Python virtual environment..."
+python3 -m venv "$VENV_DIR"
+
+# ✅ Activate and install Python dependencies
+echo ""
+echo "📦 Installing Python packages into virtual environment..."
+source "$VENV_DIR/bin/activate"
+pip install --upgrade pip
+pip install \
+    netifaces \
     google-api-python-client \
     google-auth-httplib2 \
     google-auth-oauthlib
+deactivate
 
 # Function to validate hostname
 is_valid_hostname() {
@@ -54,7 +60,6 @@ is_valid_hostname() {
     fi
 }
 
-# Prompt for hostname until valid
 echo "=================================================================== "
 echo ""
 while true; do
@@ -73,7 +78,6 @@ echo ""
 echo "🖥️ Setting hostname..."
 sudo hostnamectl set-hostname "$NEW_HOSTNAME"
 
-# ✅ Immediately update /etc/hosts to prevent sudo resolution error
 echo ""
 echo "🧹 Ensuring /etc/hosts maps hostname correctly..."
 if grep -q "^127\.0\.1\.1" /etc/hosts; then
@@ -82,13 +86,11 @@ else
     echo "127.0.1.1    $NEW_HOSTNAME" | sudo tee -a /etc/hosts > /dev/null
 fi
 
-# Prompt for description
 echo "=================================================================== "
 echo ""
 echo "📝 Enter a description for this device:"
 read -p "> " DESCRIPTION
 
-# Save metadata to JSON file
 cat > "$BASE_DIR/device_metadata.json" <<EOF
 {
     "hostname": "$NEW_HOSTNAME",
@@ -106,7 +108,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python3 $BASE_DIR/01_network_logger.py
+ExecStart=$VENV_DIR/bin/python $BASE_DIR/01_network_logger.py
 Restart=always
 User=$USER
 WorkingDirectory=$BASE_DIR

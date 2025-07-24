@@ -10,14 +10,12 @@ from Upload_File import upload_file_to_drive  # Ensure this exists and is workin
 
 # CONFIGURATION
 BASE_DIR = os.path.expanduser("~/Network_Logger")
-HISTORY_DIR = os.path.join(BASE_DIR, "network_history")
+HISTORY_DIR = BASE_DIR
 UPLOAD_TO_DRIVE = True
 TOKEN_PATH = os.path.join(BASE_DIR, "token.pickle")
 EXE_FILENAME = "RaspPI Network Info Viewer.exe"
 DELAY_AT_STARTUP_SEC = 120
 
-# Ensure folders exist
-os.makedirs(HISTORY_DIR, exist_ok=True)
 
 def get_ip():
     try:

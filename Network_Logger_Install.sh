@@ -4,7 +4,7 @@
 set -e
 
 BASE_DIR="$HOME/Network_Logger"
-HISTORY_DIR="$BASE_DIR/network_history"
+
 REPO_URL="https://github.com/Mr-Vale/Network_Logger"
 SERVICE_NAME="network_logger.service"
 VENV_DIR="$BASE_DIR/venv"
@@ -17,9 +17,6 @@ else
     echo "Repo already cloned, skipping."
 fi
 
-echo ""
-echo "📁 Creating required directories..."
-mkdir -p "$HISTORY_DIR"
 
 # ✅ Install required system packages
 echo ""
@@ -133,8 +130,9 @@ echo "✅ Network Logger installed and running as $SERVICE_NAME"
 echo "" 
 echo "=================================================================== "
 echo ""
-echo "Remeber to copy accross the upload credentials to $BASE_DIR"
+echo "Remember to copy your Google API credentials to:"
+echo "  $BASE_DIR/credentials.json"
+echo "  $BASE_DIR/token.pickle"
 echo ""
 read -n 1 -s -r -p "Press any key to continue..."
 echo
- 

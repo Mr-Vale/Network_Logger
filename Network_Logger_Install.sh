@@ -80,8 +80,7 @@ sudo hostnamectl set-hostname "$NEW_HOSTNAME"
 
 echo "You may see an error 'unable to resolve host' this is normal"
 echo ""
-echo "..."
-sleep 5
+sleep 3
 
 echo ""
 echo "🧹 Ensuring /etc/hosts maps hostname correctly..."

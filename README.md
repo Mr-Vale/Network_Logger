@@ -86,8 +86,7 @@ bash ~/Network_Logger/Network_Logger_Install.sh
 ├── Network_Logger_Install.sh  # Setup and installation script
 ├── device_metadata.json       # Stores hostname and description
 ├── token.pickle             ← Copied from your other machine
-├── credentials.json         ← Same file used to generate token.pickle
-└── network_history/           # Folder for JSON logs
+└── credentials.json         ← Same file used to generate token.pickle
 ```
 ---
 

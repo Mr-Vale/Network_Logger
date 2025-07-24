@@ -6,13 +6,14 @@ import time
 import socket
 import uuid
 from datetime import datetime
-from Upload_File import upload_file_to_drive  # Make sure this exists and is working
+from Upload_File import upload_file_to_drive  # Ensure this exists and is working
 
 # CONFIGURATION
 BASE_DIR = os.path.expanduser("~/Network_Logger")
 HISTORY_DIR = os.path.join(BASE_DIR, "network_history")
-UPLOAD_TO_DRIVE = True  # ⬅️ Set True to enable uploads
-TOKEN_PATH = os.path.join(BASE_DIR, "token.pickle")  # Location of your pre-generated token
+UPLOAD_TO_DRIVE = True
+TOKEN_PATH = os.path.join(BASE_DIR, "token.pickle")
+EXE_FILENAME = "RaspPI Network Info Viewer.exe"
 DELAY_AT_STARTUP_SEC = 120
 
 # Ensure folders exist
@@ -53,7 +54,7 @@ def get_interface():
 def save_log():
     metadata = load_metadata()
     log_entry = {
-        "timestamp": int(time.time()),  # Unix timestamp, integer seconds since 1970-01-01 UTC
+        "timestamp": int(time.time()),
         "mac": get_mac(),
         "ip": get_ip(),
         "interface": get_interface(),
@@ -61,17 +62,23 @@ def save_log():
         "description": metadata["description"]
     }
 
-    file_path = os.path.join(HISTORY_DIR, f"{metadata['hostname']}_Network_ID.json")
+    json_filename = f"{metadata['hostname']}_Network_ID.json"
+    json_path = os.path.join(HISTORY_DIR, json_filename)
 
     try:
-        with open(file_path, "w") as f:
+        with open(json_path, "w") as f:
             json.dump(log_entry, f, indent=4)
 
-        # For logging to console, you can keep ISO format for readability
-        print(f"[{datetime.now().isoformat()}] Log saved to: {file_path}")
+        print(f"[{datetime.now().isoformat()}] ✅ Log saved to: {json_path}")
 
         if UPLOAD_TO_DRIVE:
-            upload_file_to_drive(file_path, TOKEN_PATH)
+            # Upload the JSON file (always replace)
+            upload_file_to_drive(json_path, TOKEN_PATH)
+
+            # Upload the EXE file only once if not already on Drive
+            exe_path = os.path.join(BASE_DIR, EXE_FILENAME)
+            if os.path.exists(exe_path):
+                upload_file_to_drive(exe_path, TOKEN_PATH)
 
     except Exception as e:
         print(f"❌ Error during logging or upload: {e}")
@@ -79,11 +86,11 @@ def save_log():
 def main():
     print(f"📡 Network logger starting, waiting {DELAY_AT_STARTUP_SEC} seconds for network...")
     time.sleep(DELAY_AT_STARTUP_SEC)
-    print("✅ Starting hourly logging loop...")
+    print("✅ Starting 30-minute logging loop...")
 
     while True:
         save_log()
-        time.sleep(1800)  # 30 minutes
+        time.sleep(1800)
 
 if __name__ == "__main__":
     main()

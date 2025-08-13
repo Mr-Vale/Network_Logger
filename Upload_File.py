@@ -7,7 +7,6 @@ from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
 
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
-FOLDER_NAME = "Raspberry_PI_Network_Identification"
 
 # All project files stored under ~/Network_Logger
 BASE_DIR = os.path.expanduser("~/Network_Logger")
@@ -32,39 +31,20 @@ def authenticate_google_drive():
 
     return build('drive', 'v3', credentials=creds)
 
-def get_or_create_folder(service, folder_name):
-    results = service.files().list(
-        q=f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed = false",
-        spaces='drive',
-        fields='files(id, name)',
-    ).execute()
-    items = results.get('files', [])
-
-    if items:
-        return items[0]['id']
-    else:
-        file_metadata = {
-            'name': folder_name,
-            'mimeType': 'application/vnd.google-apps.folder'
-        }
-        folder = service.files().create(body=file_metadata, fields='id').execute()
-        return folder.get('id')
-
-def upload_file_to_drive(file_path, TOKEN_PATH):
+def upload_file_to_drive(file_path):
+    """Uploads a file to the root of Google Drive. Replaces JSON if it exists."""
     try:
         service = authenticate_google_drive()
-        folder_id = get_or_create_folder(service, FOLDER_NAME)
         file_name = os.path.basename(file_path)
 
         # Detect MIME type
         mime_type, _ = mimetypes.guess_type(file_path)
         media = MediaFileUpload(file_path, mimetype=mime_type)
 
-        # If it's the JSON file, always replace
         if file_name.endswith("_Network_ID.json"):
-            # Find and delete any existing file
+            # Find and delete existing file in Drive root
             results = service.files().list(
-                q=f"name='{file_name}' and '{folder_id}' in parents and trashed=false",
+                q=f"name='{file_name}' and trashed=false",
                 spaces='drive',
                 fields='files(id, name)',
             ).execute()
@@ -72,43 +52,16 @@ def upload_file_to_drive(file_path, TOKEN_PATH):
                 service.files().delete(fileId=file['id']).execute()
                 print(f"🗑️ Deleted old JSON file: {file['name']}")
 
-            # Upload new version
-            file_metadata = {
-                'name': file_name,
-                'parents': [folder_id]
-            }
+            # Upload new JSON
+            file_metadata = {'name': file_name}
             uploaded = service.files().create(
                 body=file_metadata,
                 media_body=media,
                 fields='id'
             ).execute()
-            print(f"✅ Uploaded new JSON: {file_name} (ID: {uploaded.get('id')})")
-
-        # If it's the .exe, upload only if not already there
-        elif file_name == "RaspPI Network Info Viewer.exe":
-            results = service.files().list(
-                q=f"name='{file_name}' and '{folder_id}' in parents and trashed=false",
-                spaces='drive',
-                fields='files(id, name)',
-            ).execute()
-
-            if results.get('files'):
-                print(f"⚠️ EXE already exists in Drive, skipping upload: {file_name}")
-                return
-
-            file_metadata = {
-                'name': file_name,
-                'parents': [folder_id]
-            }
-            uploaded = service.files().create(
-                body=file_metadata,
-                media_body=media,
-                fields='id'
-            ).execute()
-            print(f"✅ Uploaded EXE: {file_name} (ID: {uploaded.get('id')})")
-
+            print(f"✅ Uploaded JSON: {file_name} (ID: {uploaded.get('id')})")
         else:
-            print(f"⚠️ Skipped unknown file: {file_name}")
+            print(f"⚠️ Skipped unknown file type: {file_name}")
 
     except HttpError as error:
         print(f"❌ An HTTP error occurred: {error}")

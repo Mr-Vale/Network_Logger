@@ -6,7 +6,9 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
 
+# Google Drive API settings
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
+FOLDER_ID = '1my_IEvjcIxUgUBlKN-GCfrOMm3_0Cpu9'  # Upload target folder ID
 
 # All project files stored under ~/Network_Logger
 BASE_DIR = os.path.expanduser("~/Network_Logger")
@@ -14,25 +16,31 @@ TOKEN_PATH = os.path.join(BASE_DIR, "token.pickle")
 CREDS_PATH = os.path.join(BASE_DIR, "credentials.json")
 
 def authenticate_google_drive():
-    """Authenticate using pre-generated token & credentials, no browser fallback."""
-    if not os.path.exists(TOKEN_PATH):
-        raise RuntimeError(f"❌ token.pickle not found at: {TOKEN_PATH}")
-    if not os.path.exists(CREDS_PATH):
-        raise RuntimeError(f"❌ credentials.json not found at: {CREDS_PATH}")
+    """Authenticate with Google Drive using only token.pickle (no credentials.json)."""
+    creds = None
+    token_path = os.path.join(os.path.dirname(__file__), "token.pickle")
 
-    with open(TOKEN_PATH, 'rb') as token:
-        creds = pickle.load(token)
+    # Load existing token
+    if os.path.exists(token_path):
+        print(f"🔑 Using token from {token_path}")
+        with open(token_path, "rb") as token:
+            creds = pickle.load(token)
+    else:
+        raise FileNotFoundError(
+            f"❌ token.pickle not found at {token_path}\n"
+            "Run the OAuth flow on another machine to generate it, "
+            "then copy it here."
+        )
 
-    if creds and creds.expired:
-        if creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            raise RuntimeError("❌ Token expired and no refresh token available.")
-
-    return build('drive', 'v3', credentials=creds)
+    # Build the service
+    try:
+        service = build("drive", "v3", credentials=creds)
+        return service
+    except Exception as e:
+        raise RuntimeError(f"Google Drive authentication failed: {e}")
 
 def upload_file_to_drive(file_path):
-    """Uploads a file to the root of Google Drive. Replaces JSON if it exists."""
+    """Uploads a file to the specific Google Drive folder. Overwrites if exists."""
     try:
         service = authenticate_google_drive()
         file_name = os.path.basename(file_path)
@@ -41,27 +49,32 @@ def upload_file_to_drive(file_path):
         mime_type, _ = mimetypes.guess_type(file_path)
         media = MediaFileUpload(file_path, mimetype=mime_type)
 
-        if file_name.endswith("_Network_ID.json"):
-            # Find and delete existing file in Drive root
-            results = service.files().list(
-                q=f"name='{file_name}' and trashed=false",
-                spaces='drive',
-                fields='files(id, name)',
-            ).execute()
-            for file in results.get('files', []):
-                service.files().delete(fileId=file['id']).execute()
-                print(f"🗑️ Deleted old JSON file: {file['name']}")
+        # Look for existing file with same name in the target folder
+        results = service.files().list(
+            q=f"name='{file_name}' and '{FOLDER_ID}' in parents and trashed=false",
+            spaces='drive',
+            fields='files(id, name)',
+        ).execute()
 
-            # Upload new JSON
-            file_metadata = {'name': file_name}
+        existing_files = results.get('files', [])
+
+        if existing_files:
+            # Update (overwrite) the existing file
+            file_id = existing_files[0]['id']
+            updated = service.files().update(
+                fileId=file_id,
+                media_body=media
+            ).execute()
+            print(f"♻️ Overwritten: {file_name} (ID: {updated.get('id')})")
+        else:
+            # Upload as a new file in the folder
+            file_metadata = {'name': file_name, 'parents': [FOLDER_ID]}
             uploaded = service.files().create(
                 body=file_metadata,
                 media_body=media,
                 fields='id'
             ).execute()
-            print(f"✅ Uploaded JSON: {file_name} (ID: {uploaded.get('id')})")
-        else:
-            print(f"⚠️ Skipped unknown file type: {file_name}")
+            print(f"✅ Uploaded new file: {file_name} (ID: {uploaded.get('id')})")
 
     except HttpError as error:
         print(f"❌ An HTTP error occurred: {error}")

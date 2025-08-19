@@ -1,5 +1,4 @@
 import os
-import json
 import time
 import datetime
 import socket
@@ -12,8 +11,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 METADATA_FILE = os.path.join(BASE_DIR, 'device_metadata.json')
 
 # Delay at startup
-print("⏳ Waiting 120 seconds before starting logging...")
-time.sleep(120)
+print("⏳ Waiting 60 seconds before starting logging...")
+time.sleep(60)
 
 def get_mac_address():
     """Return the MAC address of the primary network interface."""
@@ -42,6 +41,7 @@ def get_interface():
 def load_metadata():
     """Load device metadata from file."""
     if os.path.exists(METADATA_FILE):
+        import json
         with open(METADATA_FILE, "r") as f:
             return json.load(f)
     return {"hostname": "Unknown", "description": "Unknown device"}
@@ -50,33 +50,43 @@ def main():
     metadata = load_metadata()
     hostname = metadata.get("hostname", "Unknown")
 
-    json_filename = f"{hostname}_Network_ID.json"
-    json_filepath = os.path.join(BASE_DIR, json_filename)
+    log_filename = f"{hostname}_Network_Log.txt"
+    log_filepath = os.path.join(BASE_DIR, log_filename)
+
+    last_ip = None  # Track last known IP
 
     while True:
-        data = {
-            "hostname": hostname,
-            "description": metadata.get("description", ""),
-            "mac_address": get_mac_address(),
-            "ip_address": get_ip_address(),
-            "interface": get_interface(),
-            "timestamp": datetime.datetime.now().isoformat()
-        }
+        current_ip = get_ip_address()
 
-        # Save JSON locally
-        with open(json_filepath, "w") as f:
-            json.dump(data, f, indent=4)
+        # Only log if IP has changed
+        if current_ip != last_ip and current_ip is not None:
+            data_line = (
+                f"------------------------------------------------------------------------------- \n"
+                f"[{datetime.datetime.now().isoformat()}] "
+                f"Host: {hostname}\n"
+                f"Desc: {metadata.get('description','')}\n"
+                f"MAC: {get_mac_address()}, "
+                f"IP: {current_ip}, "
+                f"Interface: {get_interface()}\n"
+                f"------------------------------------------------------------------------------- \n"
+            )
 
-        print(f"✅ Network info saved to {json_filepath}")
+            # Append to log file
+            with open(log_filepath, "a") as f:
+                f.write(data_line)
 
-        # Upload JSON to Google Drive (always overwrite)
-        try:
-            upload_file_to_drive(json_filepath, json_filename)
-            print(f"☁️ Uploaded {json_filename} to Google Drive")
-        except Exception as e:
-            print(f"❌ Failed to upload {json_filename}: {e}")
+            print(f"✅ Logged change to {log_filepath}")
 
-        time.sleep(1800)  # Log every 30 minutes
+            # Upload updated log to Google Drive
+            try:
+                upload_file_to_drive(log_filepath)
+                print(f"☁️ Uploaded {log_filename} to Google Drive")
+            except Exception as e:
+                print(f"❌ Failed to upload {log_filename}: {e}")
+
+            last_ip = current_ip  # Update last known IP
+
+        time.sleep(900)  # Check every 15 minutes
 
 if __name__ == "__main__":
     main()

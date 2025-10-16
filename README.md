@@ -43,6 +43,15 @@ Once installed, `01_network_logger.py` will run at boot (after ~120 seconds) and
 ~/Network_Logger/network_history/<hostname>_Network_ID.json
 ```
 
+## ⚙️ How to Update
+
+1. SSH into the Pi or open a terminal
+2. CD to the correct directory 
+3. Run this command:
+   ```bash
+   bash update_repo.sh --repo https://github.com/Mr-Vale/Network_Logger.git --workdir ~/Network_Logger
+   ```
+
 ## ☁️ Google Drive Upload 
 
 The upload module (Upload_File.py) supports authentication via a pre-generated token.pickle and credentials.json placed in ~/Network_Logger.
